@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Add jQuery for handling AJAX -->
+</head>
+<body>
+    <h2>Welcome, {{ current_user.username }}</h2>
+    
+    {% if current_user.role == 'employee' %}
+        <p><a href="{{ url_for('apply_leave') }}">Apply for Leave</a></p>
+        
+        <h3>Your Leave Requests:</h3>
+        <ul>
+            {% for leave in current_user.leave_requests %}
+                <li>{{ leave.leave_type }} Leave ({{ leave.start_date }} to {{ leave.end_date }}) - Status: {{ leave.status }}</li>
+            {% endfor %}
+        </ul>
+
+        <h3>Attendance:</h3>
+        <div id="attendance">
+            <button id="mark-login" onclick="markAttendance('login')">Mark Attendance (Login)</button>
+            <button id="mark-logout" onclick="markAttendance('logout')">Mark Attendance (Logout)</button>
+        </div>
+        <p id="attendance-status"></p>
+
+    {% elif current_user.role == 'superior' %}
+        <h3>Pending Leave Requests:</h3>
+        <ul>
+            {% for leave in leave_requests %}
+                <li>
+                    {{ leave.user.username }} requested {{ leave.leave_type }} leave from {{ leave.start_date }} to {{ leave.end_date }} (Reason: {{ leave.reason }}) - Status: {{ leave.status }}
+                    {% if leave.status == 'pending' %}
+                        <form action="{{ url_for('approve_leave', leave_id=leave.id) }}" method="POST" style="display:inline;">
+                            <button type="submit">Approve</button>
+                        </form>
+                        <form action="{{ url_for('reject_leave', leave_id=leave.id) }}" method="POST" style="display:inline;">
+                            <button type="submit">Reject</button>
+                        </form>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    
+    <p><a href="{{ url_for('logout') }}">Logout</a></p>
+
+    <script>
+        // Get JWT token from localStorage
+        var token = localStorage.getItem('access_token');
+        
+        // Function to mark attendance (either login or logout)
+        function markAttendance(type) {
+            if (!token) {
+                alert("You must be logged in to mark attendance.");
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+
+                // Create data to send to the backend API
+                var data = {
+                    latitude: latitude,
+                    longitude: longitude
+                };
+
+                // Determine the URL based on login or logout
+                var url = '/api/attendance/' + type;
+
+                // Make an AJAX POST request to the appropriate endpoint
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    contentType: 'application/json',
+                    headers: {
+                        'Authorization': 'Bearer ' + token // Attach JWT token in the Authorization header
+                    },
+                    data: JSON.stringify(data),
+                    success: function(response) {
+                        // Display the success message
+                        $('#attendance-status').text(response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        // Display error message if something goes wrong
+                        var errorMessage = JSON.parse(xhr.responseText).error;
+                        $('#attendance-status').text(errorMessage);
+                    }
+                });
+            }, function(error) {
+                // Error handling for geolocation failure
+                $('#attendance-status').text('Unable to retrieve your location.');
+            });
+        }
+    </script>
+</body>
+</html>

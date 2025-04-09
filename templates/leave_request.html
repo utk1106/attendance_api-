@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Apply for Leave</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <h2>Apply for Leave</h2>
+    <form action="{{ url_for('apply_leave') }}" method="POST">
+        <label for="leave_type">Leave Type:</label>
+        <select name="leave_type">
+            <option value="paid">Paid Leave</option>
+            <option value="unpaid">Unpaid Leave</option>
+        </select><br>
+        
+        <label for="start_date">Start Date:</label>
+        <input type="date" name="start_date" required><br>
+        
+        <label for="end_date">End Date:</label>
+        <input type="date" name="end_date" required><br>
+        
+        <label for="reason">Reason:</label>
+        <textarea name="reason" required></textarea><br>
+        
+        <button type="submit">Submit</button>
+    </form>
+    
+    <p><a href="{{ url_for('dashboard') }}">Back to Dashboard</a></p>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live Attendance Sheet</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable@13.0.0/dist/handsontable.full.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/handsontable@13.0.0/dist/handsontable.full.min.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    #attendance-sheet {
+      width: 95%;
+      margin: 30px auto;
+      height: 80vh;
+      overflow: hidden;
+    }
+    h2 {
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Live Attendance Sheet</h2>
+  <div id="attendance-sheet"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const container = document.getElementById('attendance-sheet');
+      const hot = new Handsontable(container, {
+        data: [],
+        colHeaders: ['Username', 'Date', 'Login Time', 'Logout Time', 'Place'],
+        columns: [
+          { data: 'username', readOnly: true },
+          { data: 'date', readOnly: true },
+          { data: 'login_time', readOnly: true },
+          { data: 'logout_time', readOnly: true },
+          { data: 'place', readOnly: true }
+        ],
+        stretchH: 'all',
+        width: '100%',
+        height: '100%',
+        licenseKey: 'non-commercial-and-evaluation'
+      });
+  
+      async function fetchAndUpdateData() {
+        try {
+          const response = await fetch('/api/sheet-data');
+          const data = await response.json();
+          console.log('Auto-refreshed data:', data);
+          hot.loadData(data);
+        } catch (error) {
+          console.error('Error fetching updated data:', error);
+        }
+      }
+  
+      fetchAndUpdateData(); // Initial load
+      setInterval(fetchAndUpdateData, 30000); // Refresh every 30 seconds
+    });
+  </script>
+</body>
+</html>
