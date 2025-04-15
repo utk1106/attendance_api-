@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5001:5000"
+    depends_on:
+      - db
+    environment:
+      - SQLALCHEMY_DATABASE_URI=postgresql://imutk:Utkarsh98@db:5432/innosoft
+      - JWT_SECRET_KEY=dcd68e52cdd2e409ca027ddc4bcec3560685af6e83092c0e90f0692828847d42
+      - SECRET_KEY=your_unique_secret_key
+    volumes:
+      - ./:/app
+    restart: always
+
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=innosoft
+      - POSTGRES_USER=imutk
+      - POSTGRES_PASSWORD=Utkarsh98
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:
