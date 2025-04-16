@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'dcd68e52cdd2e409ca027ddc4bcec3560685af6e83092c0e90f0692828847d42'
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=6)
 # print(app.config['SQLALCHEMY_DATABASE_URI'])
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://imutk:Utkarsh98@db:5432/innosoft'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://imutk:Utkarsh98@localhost:5432/innosoft'
 print(app.config['SQLALCHEMY_DATABASE_URI'])
 app.config['SECRET_KEY'] = 'your_unique_secret_key'
 IST_OFFSET = timedelta(hours=5, minutes=30)
@@ -343,4 +343,4 @@ def set_office_location():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
